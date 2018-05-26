@@ -37,7 +37,7 @@ router.get('/', function(req, res) {
 router.post('/', function(req, res, next) {
     // this is supposed to handle a single game play
     const game = req.body;
-    if (!("playerChoice" in game)) {
+    if (typeof(game) != 'object' || !("playerChoice" in game)) {
         res.status(400).send('Expecting a JSON object with a "playerChoice" field');
         next(new Error('Expecting a JSON object with a "playerChoice" field'));
         return;

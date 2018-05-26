@@ -1,7 +1,12 @@
 import express from 'express';
 import rps from './rps';
-//import login from './login';
+import login from './login';
 import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+// this is needed by the client-side routing facility (i.e., page)
+import history from 'express-history-api-fallback';
+
+mongoose.connect('mongodb://localhost/rps');
 
 const app = express();
 
@@ -11,10 +16,11 @@ app.use(function(req, res, next) {
     console.log(`ℹ️ ${Date()} handling request ${req.method} to ${req.originalUrl}`);
     next();
 });
-app.use('/rps-game', rps);
-//app.use('/login', login);
 // this will serve also the front-end from the dist directory
 app.use('/', express.static('dist'));
+app.use(history('index.html', { root: 'dist' }));
+app.use('/api/rps-game', rps);
+app.use('/api/login', login);
 // a generic logger for wrong urls 
 app.use('*', function(req, res, next) {
     let err = new Error(`${req.ip} tried to reach ${req.originalUrl}`); // Tells us which IP tried to reach a particular URL
@@ -23,7 +29,9 @@ app.use('*', function(req, res, next) {
     next(err);
 });
 app.use(function(err, req, res, next) {
-    console.error(`❌ ${Date()} ${err.message}`);
+    if (err) {
+        console.error(`❌ ${Date()} ${err.message}`);
+    }
     next();
 });
 
