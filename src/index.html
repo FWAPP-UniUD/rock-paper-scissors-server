@@ -4,24 +4,24 @@
         <script src="bundle.js" defer></script>
     </head>
     <body>
-        <nav class="ui secondary menu">
-            <a class="item" href="/">
-                Home
-            </a>
-            <a class="item" href="/play">
-                Play
-            </a>
-            <div class="right menu">                
-                <a class="ui item" href="/login">
-                    Login
+        <div class="ui container">
+            <nav class="ui secondary menu" id="my-navbar">
+                <a class="item" href="/">
+                    Home
                 </a>
-            </div>
-            <div class="right menu">                
-                <a class="ui item" href="/logout">
-                        Logout
+                <a class="item" href="/play">
+                    Play
                 </a>
-            </div>
-        </nav>
-        <div class="my-component ui container"></div>
+                <div class="right menu">                
+                    <a class="ui item my-login" href="/login">
+                        Login
+                    </a>                
+                    <a class="ui item my-logout" href="/logout">
+                            Logout
+                    </a>
+                </div>
+            </nav>
+            <div class="my-component ui container"></div>
+        </div>
     </body>
 </html>

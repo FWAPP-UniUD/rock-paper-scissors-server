@@ -1,10 +1,7 @@
 import $ from 'jquery';
 import page from 'page';
 
-class Login {
-    constructor() {
-        const htmlTemplate = 
-`
+const htmlTemplate = () => `
 <form class="ui form">
   <div class="field">
     <label>Username</label>
@@ -21,8 +18,10 @@ class Login {
   <button class="ui button" type="submit">Submit</button>
 </form>
 `;
+class Login {
+    constructor() {        
         this.mainElement = document.createElement('div');         
-        $(this.mainElement).html(htmlTemplate);
+        $(this.mainElement).html(htmlTemplate());
     }
     attach(containerElement) {
         $(containerElement).append(this.mainElement);
@@ -51,7 +50,7 @@ class Login {
         }).then((data) => {
             localStorage.setItem('logged_in', true);
             localStorage.setItem('token', data.token);
-            localStorage.setItem('user', data.user);
+            localStorage.setItem('username', data.user.name);
             page.redirect('/play');
         }).catch((error) => {
             $(this.mainElement).find('form').addClass('error');

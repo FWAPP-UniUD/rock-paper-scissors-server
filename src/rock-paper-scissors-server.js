@@ -1,26 +1,16 @@
 import $ from 'jquery';
-class RockPaperScissors {
-    constructor() {
-        this.labels = [ "Rock", "Paper", "Scissors" ];
-        // this is a convenient way to define a fragment of HTML
-        // that could be installed for this componen
-        // notice the map()/join() for evaluating a "for"-like loop
-        const htmlTemplate = `
-<!-- 
-  embedding everything in a "<div>" is not needed, in general, however
-  it is react-/web component-inspired
--->
+
+const htmlTemplate = (labels) => `
 <div>
     <h2 class="header">Your game</h2>
     <div class="ui grid segment">
     <!-- this illustrates a "for"-like creation of multiple HTML elements -->
-        ${this.labels.map(l => 
-        `
+        ${labels.map(l => `
             <div class="four columns center aligned">    
                 <input type="radio" value="${l}" name="choice"/> 
                 <label class="ui label">
-                <i class="hand ${l.toLowerCase()} icon"></i>
-                    ${l}                
+                    <i class="hand ${l.toLowerCase()} icon"></i>
+                    ${l}
                 </label>
             </div>
         `).join("\n")}
@@ -29,7 +19,7 @@ class RockPaperScissors {
     <i class="angle double right icon"></i> Play!
     </button>
     <!-- this will be the modal for showing the no-selected option message -->
-    <div class="ui modal">
+    <div class="ui fullscreen modal my-warning">
         <div class="content">
         You must choose an option
         </div>
@@ -42,10 +32,13 @@ class RockPaperScissors {
       <p class="my-result"></p>
     </div>
 </div>
-        `;
+`;
 
+class RockPaperScissors {
+    constructor() {
+        this.labels = [ "Rock", "Paper", "Scissors" ];        
         this.mainElement = document.createElement('div');
-        $(this.mainElement).html(htmlTemplate);
+        $(this.mainElement).html(htmlTemplate(this.labels));
     }
 
     attach(containerElement) {
@@ -69,14 +62,15 @@ class RockPaperScissors {
     buttonPressed(event) {
         const myChoice = $('input[name="choice"]:checked', this.mainElement);
         if (myChoice.length == 0) {
-            $(this.mainElement).find('.modal').modal('show');
+            $('.modal.my-warning').modal('show');
         } else {
             const playerChoice = myChoice.val();
             fetch('/api/rps-game', {
                 method: "POST",   
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },             
                 body: JSON.stringify({
                     playerChoice: myChoice.val()

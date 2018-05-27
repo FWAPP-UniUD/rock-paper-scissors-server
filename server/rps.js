@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import jwt from 'express-jwt';
+import config from './config';
+import Game from './models/game';
 
 const router = Router();
 
@@ -27,7 +30,11 @@ const determineWinner = (playerChoice, opponentChoice) => {
         case "Scissors": return "tie";
         }
     }
+    throw new Error('Invalid choice');
 };
+
+// install jwt middleware
+router.use(jwt({ secret: config.secret_key }));
 
 router.get('/', function(req, res) {
     // this is supposed to send statistics about the game
@@ -44,10 +51,27 @@ router.post('/', function(req, res, next) {
     } 
 
     const v = Math.floor(labels.length * Math.random());    
-    res.json({ 
-        playerChoice: game.playerChoice,
-        opponentChoice: labels[v],
-        winner: determineWinner(game.playerChoice, labels[v])
+    const winner = determineWinner(game.playerChoice, labels[v]); 
+    const index = ["player", "opponent", "tie"].indexOf(winner);
+
+    Game.findOne({ user: req.user._id }).then(function(game) {
+        if (!game) {
+            game = { user: req.user._id, stats: { player: 0, opponent: 0, tie: 0 } };
+            game.stats[winner]++;
+            Game.create(game);
+        } else {
+            game.stats[winner]++;            
+            game.save();
+        }
+        res.json({ 
+            playerChoice: game.playerChoice,
+            opponentChoice: labels[v],
+            winner
+        });
+    })
+    .catch(function(error) {
+        res.status(500).send(error);
+        next(new Error(error));
     });
 });
 
