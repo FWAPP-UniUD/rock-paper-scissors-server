@@ -38,7 +38,16 @@ router.use(jwt({ secret: config.secret_key }));
 
 router.get('/', function(req, res) {
     // this is supposed to send statistics about the game
-    res.send('Welcome to the RPS game');
+    Game.findOne({ user: req.user._id }).then(function(game) {
+        if (!game) {
+            game = { user: req.user._id, stats: { player: 0, opponent: 0, tie: 0 } };
+            Game.create(game);
+        } 
+        res.send(game);
+    }).catch(function(error) {
+        res.status(500).send(error);
+        next(new Error(error));
+    });
 });
 
 router.post('/', function(req, res, next) {
